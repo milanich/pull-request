@@ -7,6 +7,7 @@ on:
 jobs:
   find-comment-and-check:
     runs-on: ubuntu-latest
+    if: github.event.issue.pull_request != null  # Ensures it's a PR comment
 
     steps:
       - name: Find Comment
@@ -18,7 +19,7 @@ jobs:
 
       - name: Check if comment was found
         run: |
-          if [[ "${{ steps.fc.outputs.comment-id }}" == "0" ]]; then
+          if [[ "${{ steps.fc.outputs.comment-id }}" == "" ]]; then
             echo "Comment not found. Failing the workflow."
             exit 1
           else
