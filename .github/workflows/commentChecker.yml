@@ -22,7 +22,7 @@ jobs:
 
       - name: Check if comment was found
         run: |
-          if [[ "${{ steps.fc.outputs.comment-id }}" == "0" ]]; then
+          if [[ "${{ steps.fc.outputs.comment-id }}" == "" ]]; then
             echo "Comment not found. Failing the workflow."
             exit 1
           else
