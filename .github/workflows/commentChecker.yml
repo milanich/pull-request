@@ -19,10 +19,10 @@ jobs:
           COMMENT="${{ github.event.comment.body }}"
           if [[ "$COMMENT" == *"${{ env.PR_CHECKLIST_KEYWORD }}"* ]]; then
             echo "Checklist comment found."
-            echo "::set-output name=checklist_present::true"
+            echo "checklist_present=true" >> $GITHUB_OUTPUT
           else
             echo "Checklist comment not found."
-            echo "::set-output name=checklist_present::false"
+            echo "checklist_present=false" >> $GITHUB_OUTPUT
           fi
       - name: Get previous workflow status
         id: last_status
