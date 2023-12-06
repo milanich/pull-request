@@ -1,8 +1,11 @@
-name: Check for Specific Comment
+name: Check for Specific Comment in PR
 
 on:
   issue_comment:
     types: [created, edited]
+
+env:
+  SEARCH_STRING: '/confirm pr checklist reviewed'  # Define your search string here
 
 jobs:
   find-comment-and-check:
@@ -15,11 +18,11 @@ jobs:
         id: fc
         with:
           issue-number: ${{ github.event.issue.number }}
-          body-includes: "search string 1"
+          body-includes: ${{ env.SEARCH_STRING }}
 
       - name: Check if comment was found
         run: |
-          if [[ "${{ steps.fc.outputs.comment-id }}" == "" ]]; then
+          if [[ "${{ steps.fc.outputs.comment-id }}" == "0" ]]; then
             echo "Comment not found. Failing the workflow."
             exit 1
           else
