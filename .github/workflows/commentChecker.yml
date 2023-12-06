@@ -1,0 +1,42 @@
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  comment-check:
+    env:
+      PR_CHECKLIST_KEYWORD: 'pr checklist reviewed'  # Set your checklist keyword here
+      
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Check for PR checklist comment
+        id: checklist-comment
+        run: |
+          COMMENT="${{ github.event.comment.body }}"
+          if [[ "$COMMENT" == *"${{ env.PR_CHECKLIST_KEYWORD }}"* ]]; then
+            echo "Checklist comment found."
+            echo "::set-output name=checklist_present::true"
+          else
+            echo "Checklist comment not found."
+            echo "::set-output name=checklist_present::false"
+          fi
+      - name: Get previous workflow status
+        id: last_status
+        if: steps.checklist-comment.outputs.checklist_present == 'false'
+        uses: Mercymeilya/last-workflow-status@v0.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set job conclusion
+        run: |
+          if [[ "${{ steps.checklist-comment.outputs.checklist_present }}" == 'true' || "${{ steps.last_status.outputs.last_status }}" == 'success' ]]; then
+            echo "Workflow succeeded."
+            exit 0
+          else
+            echo "Workflow failed."
+            exit 1
+          fi
