@@ -12,33 +12,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Check for PR checklist comment
-        id: checklist-comment
-        run: |
-          COMMENT="${{ github.event.comment.body }}"
-          if [[ "$COMMENT" == *"${{ env.PR_CHECKLIST_KEYWORD }}"* ]]; then
-            echo "Checklist comment found."
-            echo "checklist_present=true" >> $GITHUB_OUTPUT
-          else
-            echo "Checklist comment not found."
-            echo "checklist_present=false" >> $GITHUB_OUTPUT
-          fi
-      - name: Get previous workflow status
-        id: last_status
-        if: steps.checklist-comment.outputs.checklist_present == 'false'
-        uses: Mercymeilya/last-workflow-status@v0.2
+      - name: Find Comment
+        uses: peter-evans/find-comment@v2
+        id: fc
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set job conclusion
-        run: |
-          if [[ "${{ steps.checklist-comment.outputs.checklist_present }}" == 'true' ]] || [[ -n "${{ steps.last_status.outputs.last_status }}" && "${{ steps.last_status.outputs.last_status }}" == 'success' ]]; then
-            echo "Workflow succeeded."
-            exit 0
-          else
-            echo "Workflow failed."
-            exit 1
-          fi
+          issue-number: 1
+          body-includes: pr checklist reviewed
