@@ -1,3 +1,5 @@
+name: "Check PR checklist comment added"
+
 on:
   issue_comment:
     types: [created]
