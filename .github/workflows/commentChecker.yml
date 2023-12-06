@@ -1,14 +1,11 @@
-name: "Check PR checklist comment added"
+name: Check for Specific Comment
 
 on:
   issue_comment:
-    types: [created]
+    types: [created, edited]
 
 jobs:
-  comment-check:
-    env:
-      PR_CHECKLIST_KEYWORD: 'pr checklist reviewed'  # Set your checklist keyword here
-      
+  find-comment-and-check:
     runs-on: ubuntu-latest
 
     steps:
@@ -16,5 +13,18 @@ jobs:
         uses: peter-evans/find-comment@v2
         id: fc
         with:
-          issue-number: 1
-          body-includes: pr checklist reviewed
+          issue-number: ${{ github.event.issue.number }}
+          body-includes: "search string 1"
+
+      - name: Check if comment was found
+        run: |
+          if [[ "${{ steps.fc.outputs.comment-id }}" == "0" ]]; then
+            echo "Comment not found. Failing the workflow."
+            exit 1
+          else
+            echo "Comment found."
+            echo "Comment ID: ${{ steps.fc.outputs.comment-id }}"
+            echo "Comment Body: ${{ steps.fc.outputs.comment-body }}"
+            echo "Comment Author: ${{ steps.fc.outputs.comment-author }}"
+            echo "Comment Created At: ${{ steps.fc.outputs.comment-created-at }}"
+          fi
